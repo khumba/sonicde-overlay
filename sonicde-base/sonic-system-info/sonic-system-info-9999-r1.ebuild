@@ -4,7 +4,7 @@
 EAPI=8
 
 ECM_HANDBOOK="optional"
-KFMIN=6.22.0
+KFMIN=6.26.0
 QTMIN=6.10.1
 inherit ecm plasma.sonic optfeature xdg
 
@@ -13,7 +13,7 @@ DESCRIPTION="Utility providing information about the computer hardware"
 LICENSE="GPL-2" # TODO: CHECK
 SLOT="6"
 if [[ ${PV} != *9999 ]]; then
-	KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
+	KEYWORDS="~amd64 ~arm64 ~ppc64 ~riscv ~x86"
 fi
 IUSE="gles2-only usb"
 
@@ -55,6 +55,13 @@ src_configure() {
 	)
 
 	ecm_src_configure
+}
+
+src_install() {
+	ecm_src_install
+
+	insinto /etc/xdg
+	doins "${FILESDIR}"/scm-about-distrorc
 }
 
 pkg_postinst() {

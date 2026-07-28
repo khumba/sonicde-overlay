@@ -57,6 +57,13 @@ src_configure() {
 	ecm_src_configure
 }
 
+src_install() {
+	ecm_src_install
+
+	insinto /etc/xdg
+	doins "${FILESDIR}"/scm-about-distrorc
+}
+
 pkg_postinst() {
 	optfeature_header "Query network filesystem info:"
 	optfeature "NFS information module" net-fs/nfs-utils
