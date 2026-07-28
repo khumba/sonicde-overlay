@@ -4,16 +4,17 @@
 EAPI=8
 
 ECM_HANDBOOK="optional"
-KFMIN=6.22.0
+KFMIN=6.26.0
 QTMIN=6.10.1
 inherit ecm plasma.sonic optfeature xdg
 
 DESCRIPTION="Utility providing information about the computer hardware"
+SRC_URI+=" https://www.gentoo.org/assets/img/logo/gentoo-3d-small.png -> glogo-small.png"
 
 LICENSE="GPL-2" # TODO: CHECK
 SLOT="6"
 if [[ ${PV} != *9999 ]]; then
-	KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
+	KEYWORDS="~amd64 ~arm64 ~ppc64 ~riscv ~x86"
 fi
 IUSE="gles2-only usb"
 
@@ -62,6 +63,9 @@ src_install() {
 
 	insinto /etc/xdg
 	doins "${FILESDIR}"/scm-about-distrorc
+
+	insinto /usr/share/kinfocenter
+	doins "${DISTDIR}"/glogo-small.png
 }
 
 pkg_postinst() {

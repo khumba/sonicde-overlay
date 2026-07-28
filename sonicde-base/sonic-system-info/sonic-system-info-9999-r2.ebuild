@@ -9,6 +9,7 @@ QTMIN=6.10.1
 inherit ecm plasma.sonic optfeature xdg
 
 DESCRIPTION="Utility providing information about the computer hardware"
+SRC_URI+=" https://www.gentoo.org/assets/img/logo/gentoo-3d-small.png -> glogo-small.png"
 
 LICENSE="GPL-2" # TODO: CHECK
 SLOT="6"
@@ -62,6 +63,9 @@ src_install() {
 
 	insinto /etc/xdg
 	doins "${FILESDIR}"/scm-about-distrorc
+
+	insinto /usr/share/kinfocenter
+	doins "${DISTDIR}"/glogo-small.png
 }
 
 pkg_postinst() {
