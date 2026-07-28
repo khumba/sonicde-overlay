@@ -17,7 +17,7 @@ SLOT="6"
 if [[ ${PV} != *9999 ]]; then
 	KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
 fi
-IUSE="appstream +fontconfig +ksysguard networkmanager +policykit
+IUSE="appstream flatpak +fontconfig +ksysguard networkmanager +policykit
 screencast +semantic-desktop systemd telemetry +wallpaper-metadata +X"
 
 REQUIRED_USE="fontconfig? ( X )"
@@ -53,7 +53,7 @@ COMMON_DEPEND="
 	>=kde-frameworks/ki18n-${KFMIN}:6
 	>=kde-frameworks/kiconthemes-${KFMIN}:6
 	>=kde-frameworks/kidletime-${KFMIN}:6
-	>=kde-frameworks/kio-6.22.1:6
+	>=kde-frameworks/kio-${KFMIN}:6
 	>=kde-frameworks/kitemmodels-${KFMIN}:6
 	>=kde-frameworks/kitemviews-${KFMIN}:6
 	>=kde-frameworks/kjobwidgets-${KFMIN}:6
@@ -87,9 +87,10 @@ COMMON_DEPEND="
 	virtual/zlib:=
 	virtual/libudev:=
 	appstream? ( >=dev-libs/appstream-1[qt6] )
+	flatpak? ( sys-apps/flatpak )
 	ksysguard? ( >=kde-plasma/libksysguard-${KDE_CATV}:6 )
-	policykit? ( virtual/libcrypt:= )
 	networkmanager? ( >=kde-frameworks/networkmanager-qt-${KFMIN}:6 )
+	policykit? ( virtual/libcrypt:= )
 	semantic-desktop? ( >=kde-frameworks/baloo-${KFMIN}:6 )
 	systemd? ( sys-apps/systemd:= )
 	telemetry? ( >=kde-frameworks/kuserfeedback-${KFMIN}:6 )
@@ -131,7 +132,7 @@ DEPEND="${COMMON_DEPEND}
 #     $(get_libdir)/qt6/plugins/plasma/applets/org.kde.plasma.marginsseparator.so
 RDEPEND="${COMMON_DEPEND}
 	!kde-plasma/libkworkspace:5
-	!<kde-plasma/plasma-desktop-6.3.80
+	!<kde-plasma/plasma-desktop-6.6.90
 	!kde-plasma/plasma-login-sessions:6
 	!kde-plasma/plasma-workspace:6/6
 	!<kde-plasma/xdg-desktop-portal-kde-6.1.90
@@ -165,6 +166,7 @@ PDEPEND="~kde-plasma/plasma-workspace-${PV}:6/6-sonicde"
 
 PATCHES=(
 	"${FILESDIR}/plasma-workspace-5.22.5-krunner-cwd-at-home.patch" # TODO upstream: KDE-bug 432975, bug 767478
+	"${FILESDIR}/plasma-workspace-6.7.3-optional-nm.patch" # in git master
 )
 
 src_prepare() {
@@ -184,7 +186,10 @@ src_prepare() {
 		sed -e "s/check_X11_lib(Xft)/#&/" -i CMakeLists.txt || die
 	fi
 
-	# TODO: try to get a build switch upstreamed
+	# TODO: try to get build switches upstreamed
+	if ! use flatpak; then
+		sed -e "s/^pkg_check_modules.*Flatpak/#&/" -i CMakeLists.txt || die
+	fi
 	if ! use systemd; then
 		sed -e "s/^pkg_check_modules.*SYSTEMD/#&/" -i CMakeLists.txt || die
 	fi
@@ -199,7 +204,7 @@ src_configure() {
 		$(cmake_use_find_package fontconfig Fontconfig)
 		$(cmake_use_find_package fontconfig Freetype)
 		$(cmake_use_find_package ksysguard KSysGuard)
-		$(cmake_use_find_package networkmanager KF6NetworkManagerQt)
+		-DBUILD_GEOTIMEZONED=$(usex networkmanager)
 		-DBUILD_CAMERAINDICATOR=$(usex screencast)
 		$(cmake_use_find_package semantic-desktop KF6Baloo)
 		$(cmake_use_find_package telemetry KF6UserFeedback)
